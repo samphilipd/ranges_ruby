@@ -1,35 +1,15 @@
 #!/usr/bin/env ruby
+# frozen_string_literal: true
 
-def read_ranges_file(filename)
-  IO.readlines(filename)
-end
+require_relative './lib/parser'
+require_relative './lib/range_counter'
 
-def count_ranges(num)
-  ranges = read_ranges_file(@filename)
-  count = 0
-  ranges.each do |range|
-    lower, higher = range.split
-    if Float(lower) <= num && num < Float(higher)
-      count += 1
-    end
-  end
-  puts(count)
-end
+filename = ARGV.shift
 
-def process_line(line)
-  if line != ''
-    num = Float(line)
-    count_ranges(num)
-  end
-end
+ranges = Parser.ranges_from_file(filename)
+counter = RangeCounter.new(ranges)
 
-def main()
-  @filename = ARGV.shift
-  ARGF.each do |line|
-    process_line(line)
-  end
-end
-
-if __FILE__ == $0
-  main()
+Parser.each_number_from_stdin do |number|
+  matching_range_count = counter.count_intersections(number)
+  puts(matching_range_count)
 end
